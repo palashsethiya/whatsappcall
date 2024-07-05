@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "74158282508",
+    "project_id": "whatsapp-call-7435a",
+    "storage_bucket": "whatsapp-call-7435a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:74158282508:android:39c0ce7f2d0fc5e34b1b29",
+        "android_client_info": {
+          "package_name": "com.example.machinetest_call"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzGOR23ruXZrZJbgkCsKoD-3h5H_CtL-M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
