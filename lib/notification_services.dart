@@ -4,7 +4,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:machinetest_call/message_screen.dart';
 
 class NotificationServices {
   //initialising firebase message plugin
@@ -88,7 +87,7 @@ class NotificationServices {
         priority: Priority.high,
         playSound: true,
         ticker: 'ticker',
-        sound: channel.sound
+        // sound: channel.sound
         //     sound: RawResourceAndroidNotificationSound('jetsons_doorbell')
         //  icon: largeIconPath
         );
@@ -137,16 +136,7 @@ class NotificationServices {
     });
   }
 
-  void handleMessage(BuildContext context, RemoteMessage message) {
-    if (message.data['type'] == 'msj') {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => MessageScreen(
-                    id: message.data['id'],
-                  )));
-    }
-  }
+  void handleMessage(BuildContext context, RemoteMessage message) {}
 
   Future forgroundMessage() async {
     await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
