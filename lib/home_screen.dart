@@ -90,12 +90,14 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const Padding(
             padding: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
-            child: Text("For provide permission (Setting -> Other Permission -> Show on Lock screen)"),
+            child: Text("To grant permission (Settings -> Other Permissions -> Show on Lock Screen)"),
           ),
           ElevatedButton(
               onPressed: () {
                 if (listToken.isNotEmpty) {
                   sendCallingNotification(0);
+                } else {
+                  Utils.showToast("Please install the app on the other device.");
                 }
               },
               child: const Text('Call')),
@@ -118,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await http.post(Uri.parse('https://fcm.googleapis.com/v1/projects/whatsapp-call-7435a/messages:send'), body: jsonEncode(data), headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization':
-            'Bearer ya29.c.c0AY_VpZhAwwtXoBYCMr68pPBxJfZiCrwrZuNgZG4_ugQKowncY61_0gZ1beI-RcT2A0xKHsxm5Ia61gQFMYP1h1cVzoxzZ6jAErpe9gtdogr4jPhQC4mNL3xCYGehnbr7MpbrlRhB2jRK6oaUOgt5kPmWQMRKnRkCF-XeFup2B25bb1I4xHeE7YKdPhYLKNxQdSkuPT6QoFyiKklgGlV7tUqntzcTYO9CEMD9zPGG2nXxJZmhskVP1XxTfi9GQcEX5xz6J2UhY1llOZZ-SrtCA-DZyz6QZzcG4J2PR9v2j9_4TjQDsYtNhNVfGeVbZDZOUayNdrRZBNqDF_fA6lxdV87bAqBw9dR02qpzz_M4V3e0Z4yZ4juN8aMT384AfIWYJuaam6gwadXsvjOYdtqpMeXO2a8rbgR84cSMO86FFR6-1Ivg8Iqx5YS1R7lFrdIggORMbQ0uSbo3U19xSISkrXrQY_hmXaBnR8jajvOk020larOxbu3l8BB6rX592erFz_ZWtBgep2s4ci-Sh5QVnMU18Ilr1gVF795Bhomc40o_ZtJep5lu9Uu7dmr0hwZrV50Vexyj7UnZ6ao-maR7x7nbYb5voySzhth7FSojdg9MdQjxrpdOOWu8YYraX7w5Yh2du4Owfh8iu26012qMO03brkrlQt97gZyFdFJ038z1f7ak0jg8-0iaS5fBMrYw5MQ07tuc9etljb6pmi_6qsvSiRm_uaBSxd66M_uUc3Yxc_Vno9bYr9e2fRxio7vid0nM-8eOdWffidcoOboOI354_aaYv7YFXJ6Wz_4fUhOz5Bxgu-a3csbVZwmduSacrhS-6OevBdd4h0dqhhMpXmc7isVclX3407ocxcjv1Vj8nxsZ63YbQl4zRxm8Jwh4Mq9UM2t3YStQ8SI_p2mxgp7f6ISJ3WY7qve-UiQX2yoRWy7xUZIy4pbM7_Ocu6jhnt9i53Z2RJc_yp38wRB55gtBq79bmVXOu3SeziIVq2MuuXQJeseinXa'
+            'Bearer ya29.c.c0AY_VpZjWf2rNX5aVokoZNfAUQyj23c8FHezT3JPB0-1HwLrVde-I31oWd-HMGnU7MjFmVLhc58ksKKEOnNwKcnY2soK_5J_AWKTJGRVGgUwlJK7e0tmpHibGly29QjtQHHrrq53Xb02w3HwjSEN5kGJ-Jz326v1CAOmSVnwS1jp09QEHXvqnUHpFGonBn8WZXTRa2mV0c8uMb0S8OJrUa-7c5u_JbxLam593ju_gHdOuDwo7vU_-yZCEnNGnq6gHUv1zUNejbvm_bb1gCOZQwA-FMRV2YdO6cBdCyK-cqdlKCsjKKwhapEQ0VHR-WyFZsoTUnfDeNZLH83Y2R2Mih74GjQquLyRNZrtABA0O97C-K4oX4zXQDw9nL385A-jlXkkz8p4blY2WlWURX3eglq0tv_cnB3z0U1xf___ghazmYI7tnjV-MgMFraFZrXnfJiROorMp_2kyhwzpmgl246BFp9Sw1J_3v4kSIrjw9t9OsBFW5f1-gilZjnY5djMpqnecrxq7nbiM3kaQih0vOXbQ4Mq_a_aw5qd2Y3vpnsp3cu_Mos26wi6oYS_-7rg9uOcbWRfseoYWmpXexleV4Zvyaqu1WQZQRrcBMfOoWw08xxfcBVglshQlSI2-oJaRF0hOlw6Jr4Ur_egi3q_OaIrIhsnbyzgY6QraeUR8WB4F0kn6mxtdjxayFvRezczqp1z4OOtiBj2bu-7eq9MxixgzvFnBVO-UScii6QB3SahlVi0QYiOVV51l29Ilo8veZY1FdFYfyOBwJ_h4fqQdJr0lwUVy4eS7dMncVWhBeQgwh3asYl5YqI65ZF7Z9O5i1Sh_SpB1qby98OdaIxMJ6kF4fiBSZSf0iw9rau8QzsRvd1wg4XsyxwRYk-8cwQ9ftc82S2-_4xBsIdj6OxbyRM8J15QbrI7eYzB0SIx07pRhpnY1n8nJwtXSs5F2yxV5wBq92in23dUW_0dgOaI6myvx4Osndf23q1JmBufooZg4-WeW2mxyR9t'
       }).then((value) {
         ++count;
         if (listToken.length > count) {
