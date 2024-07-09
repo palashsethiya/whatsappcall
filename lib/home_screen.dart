@@ -18,7 +18,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String deviceToken = "";
   NotificationServices notificationServices = NotificationServices();
-  List<String> listToken = [];
+  List<Map<String, dynamic>> listUser = [];
+  final nameController = TextEditingController();
 
   @override
   void initState() {
@@ -37,32 +38,35 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           deviceToken = value;
         });
-        addFirebaseToken(value);
-        getFirebaseToken(value);
+        getFirebaseToken();
       }
     });
 
     disableKeyguard();
   }
 
-  addFirebaseToken(String deviceToken) {
+  addFirebaseToken(String name, String deviceToken) {
     CollectionReference collectionReference = FirebaseFirestore.instance.collection("users");
-    collectionReference.add({"deviceToken": deviceToken});
+    collectionReference.add({"name": name, "deviceToken": deviceToken});
+    Utils.showToast("Add Successfully");
+    getFirebaseToken();
   }
 
-  getFirebaseToken(String currentDeviceToken) {
-    listToken.clear();
+  getFirebaseToken() {
+    listUser.clear();
     CollectionReference users = FirebaseFirestore.instance.collection('users');
 
-    return users.get().then((QuerySnapshot snapshot) {
+    users.get().then((QuerySnapshot snapshot) {
       snapshot.docs.forEach((doc) {
         Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
-        if (currentDeviceToken.compareTo(userData["deviceToken"]) != 0 && !listToken.contains(userData["deviceToken"])) {
-          listToken.add(userData["deviceToken"]);
-        }
+        // if (currentDeviceToken.compareTo(userData["deviceToken"]) != 0 && !listUser.contains(userData["deviceToken"])) {
+        setState(() {
+          listUser.add(userData);
+        });
+        // }
         print('${doc.id} => ${doc.data()}');
       });
-      print(listToken);
+      print(listUser);
     }).catchError((error) => print("Failed to fetch users: $error"));
   }
 
@@ -81,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flutter Notifications'),
+        title: const Text('Whatsapp Calling'),
       ),
       body: Center(
           child: Column(
@@ -92,50 +96,99 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
             child: Text("To grant permission (Settings -> Other Permissions -> Show on Lock Screen)"),
           ),
+          const SizedBox(
+            height: 16.0,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+            child: TextFormField(
+                decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(Radius.circular(8.0)), borderSide: BorderSide(color: Colors.grey.withOpacity(0.2))),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(Radius.circular(8.0)), borderSide: BorderSide(color: Colors.grey.withOpacity(0.3))),
+                    filled: true,
+                    fillColor: Colors.grey.withOpacity(0.1),
+                    hintText: "Enter your name"),
+                controller: nameController,
+                keyboardType: TextInputType.name),
+          ),
+          const SizedBox(
+            height: 16.0,
+          ),
           ElevatedButton(
               onPressed: () {
-                if (listToken.isNotEmpty) {
-                  sendCallingNotification(0);
-                } else {
-                  Utils.showToast("Please install the app on the other device.");
+                if (nameController.text.isNotEmpty) {
+                  addFirebaseToken(nameController.text, deviceToken);
                 }
               },
-              child: const Text('Call')),
+              child: const Text('Add User')),
+          GestureDetector(
+            onTap: () {
+              getFirebaseToken();
+            },
+            child: const Padding(
+              padding: EdgeInsets.only(left: 24.0, top: 24.0),
+              child: Row(
+                children: [
+                  Text(
+                    "Tap to refresh list",
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(
+                    width: 4.0,
+                  ),
+                  Icon(Icons.refresh)
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+              child: ListView.builder(
+                  itemCount: listUser.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                        leading: const Icon(Icons.call),
+                        trailing: ElevatedButton(
+                            onPressed: deviceToken.compareTo(listUser[index]["deviceToken"]) != 0
+                                ? () {
+                                    if (listUser.isNotEmpty) {
+                                      sendCallingNotification(listUser[index]);
+                                    } else {
+                                      Utils.showToast("Please install the app on the other device.");
+                                    }
+                                  }
+                                : null,
+                            child: const Text('Call')),
+                        title: Text(listUser[index]["name"]));
+                  })),
         ],
       )),
     );
   }
 
-  sendCallingNotification(int count) async {
+  sendCallingNotification(Map<String, dynamic> user) async {
     // send notification from one device to another
     // notificationServices.getDeviceToken().then((value) async {
     try {
       var data = {
         "message": {
-          'token': listToken[count],
-          'notification': {'title': 'Palash Sethiya', 'body': 'Calling...'},
+          'token': user["deviceToken"],
+          'notification': {'title': user["name"], 'body': 'Calling...'},
         }
       };
 
       await http.post(Uri.parse('https://fcm.googleapis.com/v1/projects/whatsapp-call-7435a/messages:send'), body: jsonEncode(data), headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization':
-            'Bearer ya29.c.c0AY_VpZjWf2rNX5aVokoZNfAUQyj23c8FHezT3JPB0-1HwLrVde-I31oWd-HMGnU7MjFmVLhc58ksKKEOnNwKcnY2soK_5J_AWKTJGRVGgUwlJK7e0tmpHibGly29QjtQHHrrq53Xb02w3HwjSEN5kGJ-Jz326v1CAOmSVnwS1jp09QEHXvqnUHpFGonBn8WZXTRa2mV0c8uMb0S8OJrUa-7c5u_JbxLam593ju_gHdOuDwo7vU_-yZCEnNGnq6gHUv1zUNejbvm_bb1gCOZQwA-FMRV2YdO6cBdCyK-cqdlKCsjKKwhapEQ0VHR-WyFZsoTUnfDeNZLH83Y2R2Mih74GjQquLyRNZrtABA0O97C-K4oX4zXQDw9nL385A-jlXkkz8p4blY2WlWURX3eglq0tv_cnB3z0U1xf___ghazmYI7tnjV-MgMFraFZrXnfJiROorMp_2kyhwzpmgl246BFp9Sw1J_3v4kSIrjw9t9OsBFW5f1-gilZjnY5djMpqnecrxq7nbiM3kaQih0vOXbQ4Mq_a_aw5qd2Y3vpnsp3cu_Mos26wi6oYS_-7rg9uOcbWRfseoYWmpXexleV4Zvyaqu1WQZQRrcBMfOoWw08xxfcBVglshQlSI2-oJaRF0hOlw6Jr4Ur_egi3q_OaIrIhsnbyzgY6QraeUR8WB4F0kn6mxtdjxayFvRezczqp1z4OOtiBj2bu-7eq9MxixgzvFnBVO-UScii6QB3SahlVi0QYiOVV51l29Ilo8veZY1FdFYfyOBwJ_h4fqQdJr0lwUVy4eS7dMncVWhBeQgwh3asYl5YqI65ZF7Z9O5i1Sh_SpB1qby98OdaIxMJ6kF4fiBSZSf0iw9rau8QzsRvd1wg4XsyxwRYk-8cwQ9ftc82S2-_4xBsIdj6OxbyRM8J15QbrI7eYzB0SIx07pRhpnY1n8nJwtXSs5F2yxV5wBq92in23dUW_0dgOaI6myvx4Osndf23q1JmBufooZg4-WeW2mxyR9t'
+            'Bearer ya29.c.c0AY_VpZjxr1PPbc0JvRYg8dBfZtcXkpQieCcpVgVBfW1sx7aaXqWYGs9wbOIxL5yhyBl-5qeOQiqMKwXK_DHyRQr3MbwumuXm25EBai9YkFKy_zw66GbSFfK5C5m70QdrrooQxjH2dP8cjGlSJKv0KIDw81dCk5hHI3OZOSEEt6SdpbciUNS0NapctBPVcVi34DW8dJ6Fmwhb5_TvTPNW-qMKOrhUvroRFmEk_5VcA9F8L96SBH2Vwq3J41oxH7VOxSsaglwD_dkhU6cpUyIHGFrSzysSQjmV_GPdjjZP8G_4V2SwO0qqO5dS9E_e-Wrl1G-WGvgi424FoW9278FFRz5v810Mg_tYkUpZhBBbn6dd4GAXxloXdcbwT385DUa29qI8yWs6vwdMbZ1omFMMmrvQZbQ1l7uh0s0Xi7J_QsYe3FUewfliBv1wdjvlnIU3h3_Z172Waybc722kIZdb8r3oofUIlX3MJzpZQavsWn_UJu-JrbOpnZZQe8whY4krrvlkI7fW98Sd13r_p25aZa8sXRZy_xh04OSf6cYkt79nMiYaYM13l_nZhibguI7YVFXdIm-0fw4Mgv1qkVzZtmIWme_fabvYwwa6FstR7uza6_RezSp-ZZa09Wxe4__eUkemr_YipB0qMJzZ-10Mljjjv1xwUqa7UrhvbsY5VomkS2en34WSwOQMt92S1ufSMv_FOnxjdw3qXQl-7e54aIxp6outJ4dhdoJjqnYzIniO_Q067x4uuSd_0b2nRnX623Yxoon0ORcjYM5sw9sSii1Y3WcO6y_gMzevkhUy5J43fjzk8t1jWk-OX258kVI0J1oFBpo6JaocdaJS7nSmp6JVQW2zhuskfhwetIp-OS576WJzVjXw8bv83y5dhBzSjOm1t5ji4yzI8MnOXfpaV-f08ay8R8aeFzfJmvjgbuUmRlJvjXtvb3SkcqQ8zisB2dj9rYUFQFguUS11sgyUrc-QRn9e1ynjiIYw_lfmX_5nuY4VBiSXZUi'
       }).then((value) {
-        ++count;
-        if (listToken.length > count) {
-          sendCallingNotification(count);
-        }
         if (kDebugMode) {
           Utils.showToast(value.body);
           print(value.body.toString());
         }
       }).onError((error, stackTrace) {
         Utils.showAlertDialog(context, "Alert...!", "$error");
-        ++count;
-        if (listToken.length > count) {
-          sendCallingNotification(count);
-        }
         if (kDebugMode) {
           print(error);
         }
