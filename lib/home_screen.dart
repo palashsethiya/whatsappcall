@@ -32,14 +32,14 @@ class _HomeScreenState extends State<HomeScreen> {
     notificationServices.isTokenRefresh();
 
     notificationServices.getDeviceToken().then((value) {
-      if (kDebugMode) {
+      // if (kDebugMode) {
         print('device token');
         print(value);
         setState(() {
           deviceToken = value;
         });
         getFirebaseToken();
-      }
+      // }
     });
 
     disableKeyguard();
