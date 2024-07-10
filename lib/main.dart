@@ -41,7 +41,7 @@ openCallingScreen() async {
         isCustomNotification: true,
         isShowLogo: false,
         ringtonePath: 'system_ringtone_default',
-        backgroundColor: '#0955fa',
+        backgroundColor: '#161216',
         backgroundUrl: '',
         actionColor: '#4CAF50',
         textColor: '#ffffff',

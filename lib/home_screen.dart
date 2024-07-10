@@ -49,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     CollectionReference collectionReference = FirebaseFirestore.instance.collection("users");
     collectionReference.add({"name": name, "deviceToken": deviceToken});
     Utils.showToast("Add Successfully");
+    nameController.clear();
     getFirebaseToken();
   }
 
@@ -147,20 +148,27 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListView.builder(
                   itemCount: listUser.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                        leading: const Icon(Icons.call),
-                        trailing: ElevatedButton(
-                            onPressed: deviceToken.compareTo(listUser[index]["deviceToken"]) != 0
-                                ? () {
-                                    if (listUser.isNotEmpty) {
-                                      sendCallingNotification(listUser[index]);
-                                    } else {
-                                      Utils.showToast("Please install the app on the other device.");
-                                    }
-                                  }
-                                : null,
-                            child: const Text('Call')),
-                        title: Text(listUser[index]["name"]));
+                    return Container(
+                        width: MediaQuery.of(context).size.width,
+                        margin: const EdgeInsets.only(left: 14.0, right: 14.0, top: 12.0),
+                        padding: const EdgeInsets.only(left: 4.0, top: 4.0, bottom: 4.0),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 14.0, offset: const Offset(0, 0))]),
+                        child: ListTile(
+                            trailing: ElevatedButton(
+                                onPressed: deviceToken.compareTo(listUser[index]["deviceToken"]) != 0
+                                    ? () {
+                                        if (listUser.isNotEmpty) {
+                                          sendCallingNotification(listUser[index]);
+                                        } else {
+                                          Utils.showToast("Please install the app on the other device.");
+                                        }
+                                      }
+                                    : null,
+                                child: const Text('Call')),
+                            title: Text(listUser[index]["name"])));
                   })),
         ],
       )),
@@ -181,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await http.post(Uri.parse('https://fcm.googleapis.com/v1/projects/whatsapp-call-7435a/messages:send'), body: jsonEncode(data), headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization':
-            'Bearer ya29.c.c0AY_VpZjxr1PPbc0JvRYg8dBfZtcXkpQieCcpVgVBfW1sx7aaXqWYGs9wbOIxL5yhyBl-5qeOQiqMKwXK_DHyRQr3MbwumuXm25EBai9YkFKy_zw66GbSFfK5C5m70QdrrooQxjH2dP8cjGlSJKv0KIDw81dCk5hHI3OZOSEEt6SdpbciUNS0NapctBPVcVi34DW8dJ6Fmwhb5_TvTPNW-qMKOrhUvroRFmEk_5VcA9F8L96SBH2Vwq3J41oxH7VOxSsaglwD_dkhU6cpUyIHGFrSzysSQjmV_GPdjjZP8G_4V2SwO0qqO5dS9E_e-Wrl1G-WGvgi424FoW9278FFRz5v810Mg_tYkUpZhBBbn6dd4GAXxloXdcbwT385DUa29qI8yWs6vwdMbZ1omFMMmrvQZbQ1l7uh0s0Xi7J_QsYe3FUewfliBv1wdjvlnIU3h3_Z172Waybc722kIZdb8r3oofUIlX3MJzpZQavsWn_UJu-JrbOpnZZQe8whY4krrvlkI7fW98Sd13r_p25aZa8sXRZy_xh04OSf6cYkt79nMiYaYM13l_nZhibguI7YVFXdIm-0fw4Mgv1qkVzZtmIWme_fabvYwwa6FstR7uza6_RezSp-ZZa09Wxe4__eUkemr_YipB0qMJzZ-10Mljjjv1xwUqa7UrhvbsY5VomkS2en34WSwOQMt92S1ufSMv_FOnxjdw3qXQl-7e54aIxp6outJ4dhdoJjqnYzIniO_Q067x4uuSd_0b2nRnX623Yxoon0ORcjYM5sw9sSii1Y3WcO6y_gMzevkhUy5J43fjzk8t1jWk-OX258kVI0J1oFBpo6JaocdaJS7nSmp6JVQW2zhuskfhwetIp-OS576WJzVjXw8bv83y5dhBzSjOm1t5ji4yzI8MnOXfpaV-f08ay8R8aeFzfJmvjgbuUmRlJvjXtvb3SkcqQ8zisB2dj9rYUFQFguUS11sgyUrc-QRn9e1ynjiIYw_lfmX_5nuY4VBiSXZUi'
+            'Bearer ya29.c.c0ASRK0GYWJ2GQLUFtKC_ECCQ8ayy0uP_BqVT-ydznG4RpA15ECJ_vKWwWRfFSaZO4vlFO3mC4zjXyZC3VB_VXkj0Ai4HInbeih1vEc6b5E77FAnOmKw2kpmnXJ-gPT8R6-QVZARrk87m7sGQD9lFoH0QFOGyCV3fd_ZUtUG8c9g7ecdMwkK1j43ZBfVE9lNgEBFJYus5wyQK5m2U1pJruoTqzz8_uDEcU1gRw2mudeRnY04zzSIC1r-nISbRJQISfobTtoLViffxHSB4I77cLFlf01hVZRSy8z-v3TJrO3RXEh0DZVWsUkpvwuICf0Ja4AhTDJJBtUr5-CtJIEM7YxNsz0fROhc9NMcTIvDRgqAnW8UxucKbaY-RTaQG387CtrkM3JJdf-3wSF4kcvcv8xW2QyIv5tgRMs0RQ3bmf4bW_8JcORSleQM_Bn_balmbBd-jbbZuf1eV-rWc80_02kcrOQfoj_-JQVMU0fB8xrIlqm7XbeYuYw2jm8plMXUUI56yBZBrefqbylzips9BFpc9z7vbeFVzvBJ9zu027-ie7monmqeB2uo9uzY5f3XgoU91Yq9Rn-JtJeRvyQVqsWycz0Bnr63Ibp3y1o05r3W1r6VvBXQOOM310FU3BUgf5sX2yxFj5UX3IdwgtugZ9v_tad4zep0_wmZaenkajl0egFavFurvk9y_bwoIlSuvUqF4x7bfyxQQxnbFxoMlcV65m_oVRjlsVhpqZhtqn5WYr1IfY_pMybhS3Ohqm_vZ_m72voFzJ2bc2sMfp8bXdnF6belfi64mO3ZZz7IQO9drXWd18S_rJO_80odqvUn3voyu12MS8VtOkQURMUzWO_uMVI8JQZyyU8ny4Jy5ucSMcI1Q2jWfXQwFJ8FcMYwb6mn-4t-JrVk7Vo-vbIyBUpOx_Oix80Q-8sdFXsBa2yizZcVMB979k1-s_yV5relct8ssaBerbuhFqXiyOMltjoZ4XzwO82mM0ilal1x_ttQkB2IJZVm4xQoO'
       }).then((value) {
         if (kDebugMode) {
           Utils.showToast(value.body);
